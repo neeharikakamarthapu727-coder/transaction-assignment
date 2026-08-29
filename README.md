@@ -1,53 +1,17 @@
-# Transaction Starter Project
+# Customer Transaction Processing Service
 
-This is the starter project for the Customer Transactions exercise.
+## 1. Problem Understanding
 
-## Before you start
+This project implements a small transaction-processing REST service using Java and Spring Boot.
 
-The first thing you should do after cloning the repository is:
+The service supports the four operations required in the engineering challenge:
 
-### Linux / macOS
+1. Create a transaction
+2. Get a transaction by Transaction ID
+3. Update the status of an existing transaction
+4. Get all transactions belonging to a Customer ID
 
-```bash
-./mvnw clean test
-```
-
-### Windows
-
-```bat
-mvnw.cmd clean test
-```
-
-The sample test should pass before you begin implementing the exercise.
-
-## What is already provided
-
-- Java 17
-- Spring Boot
-- Maven wrapper
-- Spring Web
-- Spring Data JPA
-- H2 embedded database
-- JUnit / Spring Boot Test
-- A sample REST endpoint: `GET /api/sample`
-- A sample test that loads the Spring context
-
-
-## Exercise
-
-Implement these four operations:
-
-1. Create transaction
-2. Get transaction
-3. Update transaction status
-4. Get all transactions for a customer
-
-
-You may change the surrounding design if you believe your solution is better.
-
-## Transaction fields
-
-Every transaction contains:
+Each transaction contains:
 
 - Transaction ID
 - Customer ID
@@ -56,54 +20,69 @@ Every transaction contains:
 - Transaction Type
 - Transaction Status
 
-### Validation rules
+---
 
-Define what makes a transaction valid. At minimum, consider:
+## 2. Assumptions
 
-- Transaction ID
-- Customer ID
-- Amount
-- Currency
-- Transaction type
-- Initial status
+The assignment document mentions that each candidate will receive an assigned variant in the invitation email.
 
-Also explain any business validation you add beyond the annotations already supplied.
+No candidate-specific variant was included in the invitation email I received. I requested clarification from the team and continued with the general requirements so that development would not be delayed.
 
-## API skeleton
+Until the assigned variant is confirmed, the implementation uses the validation rules documented below.
 
-### Create
+---
 
-`TODO`
+## 3. Validation Rules
 
-Example:
+The following validation rules are currently implemented:
 
-```
-TODO
-```
+### Transaction ID
+- Transaction ID is required.
+- Transaction ID cannot be blank.
+- Each Transaction ID must be unique.
+- A duplicate Transaction ID is rejected.
 
-### Get
+### Customer ID
+- Customer ID is required.
+- Customer ID cannot be blank.
 
-`TODO`
+### Amount
+- Amount is required.
+- Amount must be greater than zero.
 
-### Update status
+### Currency
+- Currency is stored as part of the transaction.
+- Candidate-specific currency restrictions were not included in the invitation email.
 
-`TODO`
+### Transaction Type
+- Transaction Type is stored as part of the transaction.
+- Candidate-specific transaction-type restrictions were not included in the invitation email.
 
-Example:
+### Transaction Status
+- Transaction status is stored as part of the transaction.
+- The current implementation supports updating the status of an existing transaction.
+- More restrictive status-transition rules can be added once the assigned variant or expected status rules are clarified.
 
-```
-TODO
-```
+---
 
-### Get customer transactions
+## 4. API Endpoints
 
-`TODO`
+### Create Transaction
 
-## Testing expectations
+**Method:** POST
 
-Add at least four meaningful tests.
+**Endpoint:**
 
-Your tests should cover more than just application startup. 
+`/api/transactions`
 
-You decide exactly which tests provide the best coverage.
+Example request:
 
+```json
+{
+  "transactionId": "TXN001",
+  "customerId": "CUST001",
+  "amount": 1000.00,
+  "currency": "INR",
+  "transactionType": "PAYMENT",
+  "transactionStatus": "PENDING"
+}
