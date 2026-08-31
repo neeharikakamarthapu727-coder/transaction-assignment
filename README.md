@@ -24,12 +24,11 @@ Each transaction contains:
 
 ## 2. Assumptions
 
-The assignment document mentions that each candidate will receive an assigned variant in the invitation email.
+## 2. Assumptions
 
-No candidate-specific variant was included in the invitation email I received. I requested clarification from the team and continued with the general requirements so that development would not be delayed.
+The assignment is the same for all candidates.
 
-Until the assigned variant is confirmed, the implementation uses the validation rules documented below.
-
+The implementation follows the validation rules and requirements described in the assignment document. Where specific business rules were not explicitly fixed, reasonable validation choices were made and documented below.
 ---
 
 ## 3. Validation Rules
@@ -52,16 +51,16 @@ The following validation rules are currently implemented:
 
 ### Currency
 - Currency is stored as part of the transaction.
-- Candidate-specific currency restrictions were not included in the invitation email.
+- No additional currency restriction was specified in the assignment requirements.
 
 ### Transaction Type
 - Transaction Type is stored as part of the transaction.
-- Candidate-specific transaction-type restrictions were not included in the invitation email.
+- No additional transaction-type restriction was specified in the assignment requirements.
 
 ### Transaction Status
-- Transaction status is stored as part of the transaction.
-- The current implementation supports updating the status of an existing transaction.
-- More restrictive status-transition rules can be added once the assigned variant or expected status rules are clarified.
+- Transaction Status is stored as part of the transaction.
+- The current implementation allows the status of an existing transaction to be updated.
+- More restrictive status-transition rules could be added as a future improvement.
 
 ---
 

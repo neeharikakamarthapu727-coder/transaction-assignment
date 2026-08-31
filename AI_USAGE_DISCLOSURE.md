@@ -51,10 +51,10 @@ During the process, some guidance required correction or adjustment.
 
 Examples include:
 
-- A test class was initially created in the wrong source location
-- Package placement had to be corrected
-- Some steps had to be adjusted based on IntelliJ and PowerShell behaviour on my machine
-- The assignment document mentioned a candidate-specific variant, but no variant was present in my invitation email, so I contacted the team for clarification instead of inventing one
+- A test class was initially created in the wrong source location.
+- Package placement had to be corrected.
+- Some steps had to be adjusted based on IntelliJ and PowerShell behaviour on my machine.
+- I initially asked for clarification regarding the assigned variant mentioned in the document. The team confirmed that the assignment is the same for all candidates and that I should proceed using the validation rules and requirements mentioned in the assignment document.
 
 ## How I Verified the Final Result
 
