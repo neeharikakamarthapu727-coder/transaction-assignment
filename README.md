@@ -58,9 +58,11 @@ The following validation rules are currently implemented:
 - No additional transaction-type restriction was specified in the assignment requirements.
 
 ### Transaction Status
-- Transaction Status is stored as part of the transaction.
-- The current implementation allows the status of an existing transaction to be updated.
-- More restrictive status-transition rules could be added as a future improvement.
+- Transaction Status is required.
+- Allowed statuses are `PENDING`, `COMPLETED`, and `FAILED`.
+- A transaction can be updated from `PENDING` to `COMPLETED` or `FAILED`.
+- Once a transaction is `COMPLETED` or `FAILED`, its status cannot be changed again.
+- Any other status value is rejected.
 
 ---
 

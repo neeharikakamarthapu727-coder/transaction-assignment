@@ -74,6 +74,6 @@ I verified the application in several ways:
 
 ```text
 .\mvnw.cmd clean test
-Tests run: 4, Failures: 0, Errors: 0, Skipped: 0
+Tests run: 7, Failures: 0, Errors: 0, Skipped: 0
 BUILD SUCCESS
 
