@@ -11,7 +11,6 @@ import com.example.transactionstarter.transaction.TransactionType;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -21,7 +20,9 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class TransactionServiceTests {
@@ -97,10 +98,8 @@ class TransactionServiceTests {
         );
 
         when(repository.findById("TXN102"))
-                .thenReturn(
-                        Optional.empty(),
-                        Optional.of(firstTransaction)
-                );
+                .thenReturn(Optional.empty())
+                .thenReturn(Optional.of(firstTransaction));
 
         service.createTransaction(firstTransaction);
 
@@ -155,11 +154,9 @@ class TransactionServiceTests {
         );
 
         when(repository.findById("TXN104"))
-                .thenReturn(
-                        Optional.empty(),
-                        Optional.of(transaction),
-                        Optional.of(transaction)
-                );
+                .thenReturn(Optional.empty())
+                .thenReturn(Optional.of(transaction))
+                .thenReturn(Optional.of(transaction));
 
         service.createTransaction(transaction);
 
