@@ -1,29 +1,11 @@
 package com.example.transactionstarter.transaction;
 
-import org.springframework.stereotype.Repository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
-@Repository
-public class TransactionRepository {
+public interface TransactionRepository
+        extends JpaRepository<Transaction, String> {
 
-    private final List<Transaction> transactions = new ArrayList<>();
-
-    public void save(Transaction transaction) {
-        transactions.add(transaction);
-    }
-
-    public Optional<Transaction> findById(String transactionId) {
-        return transactions.stream()
-                .filter(t -> t.getTransactionId().equals(transactionId))
-                .findFirst();
-    }
-
-    public List<Transaction> findByCustomerId(String customerId) {
-        return transactions.stream()
-                .filter(t -> t.getCustomerId().equals(customerId))
-                .toList();
-    }
+    List<Transaction> findByCustomerId(String customerId);
 }

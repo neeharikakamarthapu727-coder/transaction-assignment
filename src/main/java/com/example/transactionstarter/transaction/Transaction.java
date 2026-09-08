@@ -1,22 +1,41 @@
 package com.example.transactionstarter.transaction;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
 import java.math.BigDecimal;
 
+@Entity
+@Table(name = "transactions")
 public class Transaction {
 
+    @Id
     private String transactionId;
+
     private String customerId;
+
     private BigDecimal amount;
+
     private String currency;
-    private String transactionType;
-    private String transactionStatus;
+
+    @Enumerated(EnumType.STRING)
+    private TransactionType transactionType;
+
+    @Enumerated(EnumType.STRING)
+    private TransactionStatus transactionStatus;
+
+    public Transaction() {
+    }
 
     public Transaction(String transactionId,
                        String customerId,
                        BigDecimal amount,
                        String currency,
-                       String transactionType,
-                       String transactionStatus) {
+                       TransactionType transactionType,
+                       TransactionStatus transactionStatus) {
         this.transactionId = transactionId;
         this.customerId = customerId;
         this.amount = amount;
@@ -41,14 +60,15 @@ public class Transaction {
         return currency;
     }
 
-    public String getTransactionType() {
+    public TransactionType getTransactionType() {
         return transactionType;
     }
 
-    public String getTransactionStatus() {
+    public TransactionStatus getTransactionStatus() {
         return transactionStatus;
     }
-    public void setTransactionStatus(String transactionStatus) {
+
+    public void setTransactionStatus(TransactionStatus transactionStatus) {
         this.transactionStatus = transactionStatus;
     }
 }

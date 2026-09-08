@@ -1,52 +1,72 @@
 package com.example.transactionstarter;
 
+import com.example.transactionstarter.transaction.DuplicateTransactionException;
+import com.example.transactionstarter.transaction.InvalidStatusTransitionException;
 import com.example.transactionstarter.transaction.Transaction;
+import com.example.transactionstarter.transaction.TransactionNotFoundException;
 import com.example.transactionstarter.transaction.TransactionRepository;
 import com.example.transactionstarter.transaction.TransactionService;
+import com.example.transactionstarter.transaction.TransactionStatus;
+import com.example.transactionstarter.transaction.TransactionType;
+
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 class TransactionServiceTests {
+
+    @Mock
+    private TransactionRepository repository;
+
+    @InjectMocks
+    private TransactionService service;
 
     @Test
     void shouldCreateTransactionSuccessfully() {
-
-        TransactionRepository repository = new TransactionRepository();
-        TransactionService service = new TransactionService(repository);
 
         Transaction transaction = new Transaction(
                 "TXN100",
                 "CUST100",
                 new BigDecimal("500.00"),
                 "INR",
-                "PAYMENT",
-                "PENDING"
+                TransactionType.PAYMENT,
+                TransactionStatus.PENDING
         );
+
+        when(repository.findById("TXN100"))
+                .thenReturn(Optional.empty());
 
         Transaction result = service.createTransaction(transaction);
 
         assertEquals("TXN100", result.getTransactionId());
         assertEquals("CUST100", result.getCustomerId());
-        assertEquals(new BigDecimal("500.00"), result.getAmount());
+        assertEquals(TransactionType.PAYMENT, result.getTransactionType());
+        assertEquals(TransactionStatus.PENDING, result.getTransactionStatus());
+
+        verify(repository).save(transaction);
     }
 
     @Test
     void shouldRejectInvalidAmount() {
-
-        TransactionRepository repository = new TransactionRepository();
-        TransactionService service = new TransactionService(repository);
 
         Transaction transaction = new Transaction(
                 "TXN101",
                 "CUST101",
                 new BigDecimal("-100.00"),
                 "INR",
-                "PAYMENT",
-                "PENDING"
+                TransactionType.PAYMENT,
+                TransactionStatus.PENDING
         );
 
         assertThrows(
@@ -58,16 +78,13 @@ class TransactionServiceTests {
     @Test
     void shouldRejectDuplicateTransactionId() {
 
-        TransactionRepository repository = new TransactionRepository();
-        TransactionService service = new TransactionService(repository);
-
         Transaction firstTransaction = new Transaction(
                 "TXN102",
                 "CUST102",
                 new BigDecimal("500.00"),
                 "INR",
-                "PAYMENT",
-                "PENDING"
+                TransactionType.PAYMENT,
+                TransactionStatus.PENDING
         );
 
         Transaction duplicateTransaction = new Transaction(
@@ -75,43 +92,48 @@ class TransactionServiceTests {
                 "CUST103",
                 new BigDecimal("800.00"),
                 "INR",
-                "PAYMENT",
-                "PENDING"
+                TransactionType.PAYMENT,
+                TransactionStatus.PENDING
         );
+
+        when(repository.findById("TXN102"))
+                .thenReturn(
+                        Optional.empty(),
+                        Optional.of(firstTransaction)
+                );
 
         service.createTransaction(firstTransaction);
 
         assertThrows(
-                IllegalArgumentException.class,
+                DuplicateTransactionException.class,
                 () -> service.createTransaction(duplicateTransaction)
         );
+
+        verify(repository, times(1)).save(firstTransaction);
     }
 
     @Test
     void shouldThrowErrorWhenTransactionNotFound() {
 
-        TransactionRepository repository = new TransactionRepository();
-        TransactionService service = new TransactionService(repository);
+        when(repository.findById("TXN999"))
+                .thenReturn(Optional.empty());
 
         assertThrows(
-                IllegalArgumentException.class,
+                TransactionNotFoundException.class,
                 () -> service.getTransaction("TXN999")
         );
     }
 
     @Test
-    void shouldRejectInvalidTransactionStatus() {
-
-        TransactionRepository repository = new TransactionRepository();
-        TransactionService service = new TransactionService(repository);
+    void shouldRejectMissingTransactionStatus() {
 
         Transaction transaction = new Transaction(
                 "TXN103",
                 "CUST103",
                 new BigDecimal("300.00"),
                 "INR",
-                "PAYMENT",
-                "HELLO"
+                TransactionType.PAYMENT,
+                null
         );
 
         assertThrows(
@@ -123,25 +145,35 @@ class TransactionServiceTests {
     @Test
     void shouldRejectStatusChangeAfterCompletion() {
 
-        TransactionRepository repository = new TransactionRepository();
-        TransactionService service = new TransactionService(repository);
-
         Transaction transaction = new Transaction(
                 "TXN104",
                 "CUST104",
                 new BigDecimal("700.00"),
                 "INR",
-                "PAYMENT",
-                "PENDING"
+                TransactionType.PAYMENT,
+                TransactionStatus.PENDING
         );
+
+        when(repository.findById("TXN104"))
+                .thenReturn(
+                        Optional.empty(),
+                        Optional.of(transaction),
+                        Optional.of(transaction)
+                );
 
         service.createTransaction(transaction);
 
-        service.updateStatus("TXN104", "COMPLETED");
+        service.updateStatus(
+                "TXN104",
+                TransactionStatus.COMPLETED
+        );
 
         assertThrows(
-                IllegalArgumentException.class,
-                () -> service.updateStatus("TXN104", "FAILED")
+                InvalidStatusTransitionException.class,
+                () -> service.updateStatus(
+                        "TXN104",
+                        TransactionStatus.FAILED
+                )
         );
     }
 }

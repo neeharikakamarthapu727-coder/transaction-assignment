@@ -4,15 +4,11 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Set;
 
 @Service
 public class TransactionService {
 
     private final TransactionRepository repository;
-
-    private static final Set<String> ALLOWED_STATUSES =
-            Set.of("PENDING", "COMPLETED", "FAILED");
 
     public TransactionService(TransactionRepository repository) {
         this.repository = repository;
@@ -40,62 +36,60 @@ public class TransactionService {
             throw new IllegalArgumentException("Currency is required");
         }
 
-        if (transaction.getTransactionType() == null ||
-                transaction.getTransactionType().isBlank()) {
+        if (transaction.getTransactionType() == null) {
             throw new IllegalArgumentException("Transaction type is required");
         }
 
-        if (transaction.getTransactionStatus() == null ||
-                transaction.getTransactionStatus().isBlank()) {
+        if (transaction.getTransactionStatus() == null) {
             throw new IllegalArgumentException("Transaction status is required");
         }
 
-        if (!ALLOWED_STATUSES.contains(
-                transaction.getTransactionStatus().toUpperCase())) {
-            throw new IllegalArgumentException("Invalid transaction status");
-        }
-
         if (repository.findById(transaction.getTransactionId()).isPresent()) {
-            throw new IllegalArgumentException("Transaction ID already exists");
+            throw new DuplicateTransactionException(
+                    "Transaction ID already exists"
+            );
         }
 
         repository.save(transaction);
-
         return transaction;
     }
 
     public Transaction getTransaction(String transactionId) {
         return repository.findById(transactionId)
                 .orElseThrow(() ->
-                        new IllegalArgumentException("Transaction not found"));
+                        new TransactionNotFoundException(
+                                "Transaction not found"
+                        ));
     }
 
     public List<Transaction> getCustomerTransactions(String customerId) {
         return repository.findByCustomerId(customerId);
     }
 
-    public Transaction updateStatus(String transactionId, String newStatus) {
+    public Transaction updateStatus(
+            String transactionId,
+            TransactionStatus newStatus) {
 
         Transaction transaction = getTransaction(transactionId);
 
-        if (newStatus == null || newStatus.isBlank()) {
-            throw new IllegalArgumentException("Transaction status is required");
-        }
-
-        String currentStatus = transaction.getTransactionStatus().toUpperCase();
-        String requestedStatus = newStatus.toUpperCase();
-
-        if (!ALLOWED_STATUSES.contains(requestedStatus)) {
-            throw new IllegalArgumentException("Invalid transaction status");
-        }
-
-        if ("COMPLETED".equals(currentStatus) ||
-                "FAILED".equals(currentStatus)) {
+        if (newStatus == null) {
             throw new IllegalArgumentException(
-                    "Completed or failed transactions cannot be updated");
+                    "Transaction status is required"
+            );
         }
 
-        transaction.setTransactionStatus(requestedStatus);
+        TransactionStatus currentStatus =
+                transaction.getTransactionStatus();
+
+        if (currentStatus == TransactionStatus.COMPLETED ||
+                currentStatus == TransactionStatus.FAILED) {
+
+            throw new InvalidStatusTransitionException(
+                    "Completed or failed transactions cannot be updated"
+            );
+        }
+
+        transaction.setTransactionStatus(newStatus);
 
         return transaction;
     }
